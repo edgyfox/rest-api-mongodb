@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = 'utf-8'>
+        <title>Home</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+        <link rel="stylesheet" href="/style.css" style="text/css" />
+    </head>
+    <body>
+        <h1 class="title">
+            LIBRARIES - A REST SERVICE
+        </h1>
+        <div id="homepage">
+            <h2>Find a library near you</h2>
+            <div id="libraries"></div>
+        </div>
+
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <script src="https://unpkg.com/react@15/dist/react.js"></script>
+        <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+
+        <!-- REACT component -->
+        <script type="text/babel">
+
+            class Libraries extends React.Component {
+
+                constructor(props) {
+                    super(props);
+                    this.state = {
+                        libraries: []
+                    };
+                }
+                render() {
+                    var libraries = this.state.libraries;
+                    libraries = libraries.map(function(library, index) {
+                        return(
+                                <li key={index} >
+                                    <span className="name">
+                                        {library.name}
+                                    </span>
+                                    <span className="dist">
+                                        {Math.floor(library.dist.calculated)} km
+                                    </span>
+                                    <span className="books">
+                                        {library.books.length} books
+                                    </span>
+                                </li>
+                        );
+                    });
+                    return(
+                        <div id="library-container">
+                            <form id="search" onSubmit={this.handleSubmit.bind(this)}>
+                                <label>Enter longitude: </label>
+                                <input type="text" ref="long" placeholder="longitude"
+                                            required />
+                                <label>Enter lattitude: </label>
+                                <input type="text" ref="latt" placeholder="lattitude"
+                                            required />
+                                <input type="submit" value="Find libraries" />
+                            </form>
+                            <ul>{libraries}</ul>
+                        </div>
+                    );
+                }
+                handleSubmit(event){
+                    event.preventDefault();
+                    var long = this.refs.long.value;
+                    var latt = this.refs.latt.value;
+                    fetch('/api/librariesNear?long=' + long + "&latt=" + latt).then(
+                        function(data) {
+                            return data.json();
+                        }
+                    ).then(jsonData => {
+                        console.log(jsonData)
+                        this.setState({
+                            libraries : jsonData
+                        });
+                    });
+                }
+            }
+
+            ReactDOM.render(<Libraries />,document.getElementById('libraries'));
+
+        </script>
+
+    </body>
+</html>
